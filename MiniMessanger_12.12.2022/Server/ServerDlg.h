@@ -1,21 +1,29 @@
-#pragma once
-#include "Server.h"
+﻿#pragma once
+#include "Headers.h"
 
-struct ServerDlg
+class ServerDlg
 {
-	char receiveMessage[MAXSTRLEN];
-	char sendMessage[MAXSTRLEN];
-
-	Server server;
-	static ServerDlg* ptr;
+public:
 	ServerDlg(void);
+public:
 	~ServerDlg(void);
 	static BOOL CALLBACK DlgProc(HWND hWnd, UINT mes, WPARAM wp, LPARAM lp);
+	static ServerDlg* ptr;
+	void Cls_OnClose(HWND hwnd);
 	BOOL Cls_OnInitDialog(HWND hwnd, HWND hwndFocus, LPARAM lParam);
 	void Cls_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify);
-	void Cls_OnClose(HWND hwnd);
-	DWORD WINAPI GetMessages();
+	void Send();
+	void OutputMessage();
 
-	HWND hDialog, hMessages, hEnter, hStart, hStop, hSend;
-};									
+	HWND hStart, hStop, hSend;
+	HWND hEnter, hMessages;
 
+	char serverBuffer[MAXSTRLEN];
+
+	WSADATA wsaData;
+	SOCKET _socket;
+	SOCKET acceptSocket;
+	sockaddr_in addr;
+
+
+};

@@ -1,9 +1,10 @@
-#pragma once
-#include "Client.h"
+﻿#pragma once
+#include "Headers.h"
 
-struct ClientDlg
+class ClientDlg
 {
-	Client client;
+public:
+	char clientBuffer[MAXSTRLEN] = "";
 	static ClientDlg* ptr;
 	ClientDlg(void);
 	~ClientDlg(void);
@@ -11,6 +12,15 @@ struct ClientDlg
 	BOOL Cls_OnInitDialog(HWND hwnd, HWND hwndFocus, LPARAM lParam);
 	void Cls_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify);
 	void Cls_OnClose(HWND hwnd);
-	HWND hDialog, hMessages, hEnter, hConnect, hDisconnect, hSend;
+	void OutputMessages();
+	void Send();
+
+	HWND hMessages, hEnter, hConnect, hDisconnect, hSend, hEnterIp;
+
+
+
+	WSADATA wsaData;
+	SOCKET _socket; 
+	sockaddr_in addr;
 };
 

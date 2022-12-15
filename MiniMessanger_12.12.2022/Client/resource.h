@@ -5,11 +5,10 @@
 #define IDD_CLIENT                      108
 #define IDC_MESSAGES                    1001
 #define IDC_ENTER                       1002
-#define IDC_EDIT1                       1003
+#define IDC_IP                          1003
 #define IDC_CONNECT                     1004
 #define IDC_DISCONNECT                  1006
 #define IDC_SEND                        1007
-#define IDC_STATIC                      -1
 
 // Next default values for new objects
 // 

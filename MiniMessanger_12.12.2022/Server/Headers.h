@@ -1,4 +1,6 @@
 #pragma once
+#define _CRT_SECURE_NO_WARNINGS
+
 
 #include "WinSock2.h" //здесь наход€тс€ объ€влени€, необходимые
 //дл€ Winsock 2 API.
@@ -15,5 +17,6 @@
 #include "resource.h"
 #include <iostream>
 
+const int MAXSTRLEN = 256;
 
 using namespace std;

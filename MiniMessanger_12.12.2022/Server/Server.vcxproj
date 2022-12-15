@@ -141,12 +141,10 @@
   <ItemGroup>
     <ClInclude Include="Headers.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="Server.h" />
     <ClInclude Include="ServerDlg.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Server.cpp" />
     <ClCompile Include="ServerDlg.cpp" />
   </ItemGroup>
   <ItemGroup>
