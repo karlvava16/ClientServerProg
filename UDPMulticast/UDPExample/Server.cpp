@@ -91,7 +91,7 @@ int main() {
 
 			for (int i = 0; i < history.size(); i++)
 			{
-				cout << history[i] << "\n";
+				cout << history[i];
 				send(new_socket, history[i].c_str(), history[i].size(), 0);
 			}
 

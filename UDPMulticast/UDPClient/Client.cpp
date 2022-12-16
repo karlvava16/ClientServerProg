@@ -16,7 +16,14 @@ using namespace std;
 SOCKET client_socket;
 
 string nickname;
-char color[2] = "";
+char color;
+
+
+
+void SetConsoleText(int color)
+{
+    
+}
 
 DWORD WINAPI Sender(void* param)
 {
@@ -30,20 +37,23 @@ DWORD WINAPI Sender(void* param)
 
         // альтернативный вариант ввода данных стрингом
          getline(cin, query);
-         query = color + " " + nickname + ": " + query + "\n";
+         query = color + nickname + ": " + query + "\n";
          send(client_socket, query.c_str(), query.size(), 0);
     }
 }
 
 DWORD WINAPI Receiver(void* param)
 {
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     while (true) {
         char response[DEFAULT_BUFLEN];
         int result = recv(client_socket, response, DEFAULT_BUFLEN, 0);
         response[result] = '\0';
-
         // cout << "...\nYou have new response from server: " << response << "\n";
-        cout << response << "\n";
+        SetConsoleTextAttribute(hConsole, (response[0] - 40));
+        cout << &(response[1]);
+        SetConsoleTextAttribute(hConsole, ('7' - 40));
+
         // cout << "Please insert your query for server: ";
     }
 }
