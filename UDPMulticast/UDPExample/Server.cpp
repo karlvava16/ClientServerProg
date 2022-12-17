@@ -65,7 +65,7 @@ int main() {
 		FD_SET(server_socket, &readfds);
 
 		// добавить дочерние сокеты в fdset
-		for (int i = 0; i < MAX_CLIENTS; i++) 
+		for (int i = 0; i < MAX_CLIENTS; i++)
 		{
 			SOCKET s = client_socket[i];
 			if (s > 0) {
@@ -91,7 +91,6 @@ int main() {
 
 			for (int i = 0; i < history.size(); i++)
 			{
-				cout << history[i];
 				send(new_socket, history[i].c_str(), history[i].size(), 0);
 			}
 
@@ -132,14 +131,16 @@ int main() {
 					cout << "Client #" << i << " is off\n";
 					client_socket[i] = 0;
 				}
+				else
+				{
+					string temp = client_message;
+					// temp += "\n";
+					history.push_back(temp);
 
-				string temp = client_message;
-				// temp += "\n";
-				history.push_back(temp);
-
-				for (int i = 0; i < MAX_CLIENTS; i++) {
-					if (client_socket[i] != 0) {
-						send(client_socket[i], client_message, client_message_length, 0);
+					for (int i = 0; i < MAX_CLIENTS; i++) {
+						if (client_socket[i] != 0) {
+							send(client_socket[i], client_message, client_message_length, 0);
+						}
 					}
 				}
 

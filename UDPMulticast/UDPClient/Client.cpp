@@ -18,17 +18,13 @@ SOCKET client_socket;
 string nickname;
 char color;
 
-
-
-void SetConsoleText(int color)
-{
-    
-}
-
 DWORD WINAPI Sender(void* param)
 {
-    string query = "";
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
+    string query = "[User \"" + nickname + "\" connetcted to chat] \n";
+    query = color + query;
+    send(client_socket, query.c_str(), query.size(), 0);
 
     while (true) {
         //cout << "Please insert your query for server: ";
@@ -36,6 +32,7 @@ DWORD WINAPI Sender(void* param)
         //send(client_socket, query, strlen(query), 0);
 
         // альтернативный вариант ввода данных стрингом
+        SetConsoleTextAttribute(hConsole, ('7' - 40));
          getline(cin, query);
          query = color + nickname + ": " + query + "\n";
          send(client_socket, query.c_str(), query.size(), 0);
@@ -45,15 +42,15 @@ DWORD WINAPI Sender(void* param)
 DWORD WINAPI Receiver(void* param)
 {
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    char response[DEFAULT_BUFLEN] = "";
+    int result;
     while (true) {
-        char response[DEFAULT_BUFLEN];
-        int result = recv(client_socket, response, DEFAULT_BUFLEN, 0);
+        result = recv(client_socket, response, DEFAULT_BUFLEN, 0);
         response[result] = '\0';
         // cout << "...\nYou have new response from server: " << response << "\n";
         SetConsoleTextAttribute(hConsole, (response[0] - 40));
         cout << &(response[1]);
         SetConsoleTextAttribute(hConsole, ('7' - 40));
-
         // cout << "Please insert your query for server: ";
     }
 }
@@ -65,8 +62,11 @@ BOOL ExitHandler(DWORD whatHappening)
     case CTRL_C_EVENT: // closing console by ctrl + c
     case CTRL_BREAK_EVENT: // ctrl + break
     case CTRL_CLOSE_EVENT: // closing the console window by X button
-      return(TRUE);
-        break;
+    {
+        send(client_socket, "off", 4, 0);
+        return(TRUE);
+    }
+    break;
     default:
         return FALSE;
     }
@@ -94,11 +94,22 @@ int main()
 
     system("cls");
 
+    cout << "Enter nickname: ";
+    getline(cin, nickname);
+
+    system((string("title Client: ") + nickname).c_str());
+
+    cout << "Enter message color: ";
+    cin >> color;
+    cin.clear();
+    cin.ignore();
+
     //cout << "Enter server IP: ";
     //cin >> ip;
     //cin.clear();
     //cin.ignore();
-    
+
+    system("cls");
 
     // разрешить адрес сервера и порт
     addrinfo* result = nullptr;
@@ -139,21 +150,9 @@ int main()
         return 5;
     }
 
-    cout << "Enter nickname: ";
-    getline(cin, nickname);
-
-   system((string("title Client: ") + nickname).c_str());
-
-
-    cout << "Enter message color: ";
-    cin >> color;
-    cin.clear();
-    cin.ignore();
-    system("cls");
-
-
     CreateThread(0, 0, Sender, 0, 0, 0);
     CreateThread(0, 0, Receiver, 0, 0, 0);
+
 
     Sleep(INFINITE);
 }
