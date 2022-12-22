@@ -134,7 +134,6 @@ int main() {
 				else
 				{
 					string temp = client_message;
-					// temp += "\n";
 					history.push_back(temp);
 
 					for (int i = 0; i < MAX_CLIENTS; i++) {

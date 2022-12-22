@@ -22,9 +22,11 @@ DWORD WINAPI Sender(void* param)
 {
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
-    string query = "[User \"" + nickname + "\" connetcted to chat] \n";
+    string query = "[User \"" + nickname + "\" connected to chat]";
+    
     query = color + query;
     send(client_socket, query.c_str(), query.size(), 0);
+    
 
     while (true) {
         //cout << "Please insert your query for server: ";
@@ -34,8 +36,21 @@ DWORD WINAPI Sender(void* param)
         // альтернативный вариант ввода данных стрингом
         SetConsoleTextAttribute(hConsole, ('7' - 40));
          getline(cin, query);
-         query = color + nickname + ": " + query + "\n";
-         send(client_socket, query.c_str(), query.size(), 0);
+         cout << endl;
+         if (query != "off")
+         {
+             query = color + nickname + ": " + query;
+             send(client_socket, query.c_str(), query.size(), 0);
+         }
+         else
+         {
+             query = color + "[User \"" + nickname + "\" disconnected]";
+             send(client_socket, query.c_str(), query.size(), 0);
+             query = "off";
+             send(client_socket, query.c_str(), query.size(), 0);
+             return TRUE;
+         }
+
     }
 }
 
@@ -63,7 +78,6 @@ BOOL ExitHandler(DWORD whatHappening)
     case CTRL_BREAK_EVENT: // ctrl + break
     case CTRL_CLOSE_EVENT: // closing the console window by X button
     {
-        send(client_socket, "off", 4, 0);
         return(TRUE);
     }
     break;
@@ -74,7 +88,7 @@ BOOL ExitHandler(DWORD whatHappening)
 
 int main()
 {
-    string ip = "172.23.112.1";
+    string ip = "172.20.48.1";
     // обработчик закрытия окна консоли
     //SetConsoleCtrlHandler((PHANDLER_ROUTINE)ExitHandler, true);
 
@@ -145,7 +159,7 @@ int main()
     freeaddrinfo(result);
 
     if (client_socket == INVALID_SOCKET) {
-        printf("Unable to connect to server!\n");
+        printf("Unable to sconnect to server!\n");
         WSACleanup();
         return 5;
     }
