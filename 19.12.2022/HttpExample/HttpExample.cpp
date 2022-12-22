@@ -130,9 +130,9 @@ int main()
     {
         Json::Reader reader; // reader that parse json file
 
-        Json::Value completeJsonData; // class that containese json info
+        Json::Value completeJsonData; // class that contains json info
 
-        reader.parse(response, completeJsonData); // parseing
+        reader.parse(response, completeJsonData); // parsing
 
         string resultString = ""; // Result string
 
