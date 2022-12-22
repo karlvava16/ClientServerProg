@@ -6,16 +6,19 @@
 #include <string>
 #include <fstream>
 #include <chrono>
+#include <iomanip>
 #include "json\json.h"
 
 using namespace std;
 
 int main()
 {
-
     setlocale(0, "ru");
 
-    
+    //Enter city
+    string city;
+    cout << "Enter city: ";
+    cin >> city;
 
 
     //1. инициализация "Ws2_32.dll" для текущего процесса
@@ -27,14 +30,14 @@ int main()
 
         cout << "WSAStartup failed with error: " << err << endl;
         return 1;
-    }  
+    }
 
     //инициализация структуры, для указания ip адреса и порта сервера с которым мы хотим соединиться
-   
+
     char hostname[255] = "api.openweathermap.org";
-    
-    addrinfo* result = NULL;    
-    
+
+    addrinfo* result = NULL;
+
     addrinfo hints;
     ZeroMemory(&hints, sizeof(hints));
     hints.ai_family = AF_INET;
@@ -46,7 +49,7 @@ int main()
         cout << "getaddrinfo failed with error: " << iResult << endl;
         WSACleanup();
         return 3;
-    }     
+    }
 
     SOCKET connectSocket = INVALID_SOCKET;
     addrinfo* ptr = NULL;
@@ -62,7 +65,7 @@ int main()
             return 1;
         }
 
-       //3. Соединяемся с сервером
+        //3. Соединяемся с сервером
         iResult = connect(connectSocket, ptr->ai_addr, (int)ptr->ai_addrlen);
         if (iResult == SOCKET_ERROR) {
             closesocket(connectSocket);
@@ -74,14 +77,18 @@ int main()
 
     //4. HTTP Request
 
-    string uri = "/data/2.5/weather?q=Odessa&appid=75f6e64d49db78658d09cb5ab201e483&mode=JSON";
+    
 
-    string request = "GET " + uri + " HTTP/1.1\n"; 
+    string uri = "/data/2.5/weather?q=" + city + "&appid=75f6e64d49db78658d09cb5ab201e483&mode=JSON";
+
+    string request = "GET " + uri + " HTTP/1.1\n";
     request += "Host: " + string(hostname) + "\n";
     request += "Accept: */*\n";
-    request += "Accept-Encoding: gzip, deflate, br\n";   
-    request += "Connection: close\n";   
+    request += "Accept-Encoding: gzip, deflate, br\n";
+    request += "Connection: close\n";
     request += "\n";
+
+    cout << uri << endl;
 
     //отправка сообщения
     if (send(connectSocket, request.c_str(), request.length(), 0) == SOCKET_ERROR) {
@@ -104,7 +111,7 @@ int main()
     do {
         respLength = recv(connectSocket, resBuf, BUFFERSIZE, 0);
         if (respLength > 0) {
-            response += string(resBuf).substr(0, respLength);           
+            response += string(resBuf).substr(0, respLength);
         }
         else {
             cout << "recv failed: " << WSAGetLastError() << endl;
@@ -116,36 +123,61 @@ int main()
     } while (respLength == BUFFERSIZE);
 
 
-    cout << response << endl;
-
- /* ofstream file("Test.json");
-    file << response;
-    file.close();
-   */
-    ifstream file2("Test.json");
-
-    Json::Reader reader;
+    response = &response.c_str()[response.find("{")]; // left only json info
 
 
-    Json::Value completeJsonData;
+    try
+    {
+        Json::Reader reader; // reader that parse json file
 
-    cout << completeJsonData.size() << endl;
-    
-    reader.parse(file2, completeJsonData);
+        Json::Value completeJsonData; // class that containese json info
 
-    file2.close();
+        reader.parse(response, completeJsonData); // parseing
 
-    cout << completeJsonData.size() << endl;
+        string resultString = ""; // Result string
 
-    cout << "City ID: " << completeJsonData["id"] << endl;
-    cout << "City: " << completeJsonData["name"] << endl;
-    cout << "Country: " << completeJsonData["sys"]["country"] << endl;
-    cout << "Min temp: " << completeJsonData["main"]["temp_min"].asFloat() - 271 << endl;
-    cout << "Max temp: " << completeJsonData["main"]["temp_max"].asFloat() - 271 << endl;
+        //CITY ID
+        resultString += "City ID: ";
+        resultString += completeJsonData["id"].asCString();
+        resultString += "\n";
+        //CITY
+        resultString += "City: ";
+        resultString += completeJsonData["name"].asCString();
+        resultString += "\n";
+        //COUNTRY
+        resultString += "Country: ";
+        resultString += completeJsonData["sys"]["country"].asCString();
+        resultString += "\n";
+        //MIN TEMP
+        resultString += "Min temp: ";
+        resultString += to_string(completeJsonData["main"]["temp_min"].asFloat() - 273.15);
+        resultString += "\n";
+        //MAX TEMP
+        resultString += "Max temp: ";
+        resultString += to_string(completeJsonData["main"]["temp_max"].asFloat() - 273.15);
+        resultString += "\n";
+        //SUNSET
+        std::chrono::milliseconds ms(completeJsonData["sys"]["sunset"].asInt());
+        resultString += "Sunset : ";
+        if (chrono::duration_cast<std::chrono::hours>(ms).count() / 24 < 10)
+            resultString += "0";
+        resultString += to_string(chrono::duration_cast<std::chrono::hours>(ms).count() / 24);
+        resultString += ":";
+        if (chrono::duration_cast<std::chrono::minutes> (ms).count() / 60 / 60 < 10)
+            resultString += "0";
+        resultString += to_string(chrono::duration_cast<std::chrono::minutes> (ms).count() / 60 / 60);
+        resultString += "\n";
 
-    std::chrono::milliseconds ms(completeJsonData["sys"]["sunset"].asInt());
-    cout << "Sunset : " << chrono::duration_cast<std::chrono::hours> (ms).count() << ":" << chrono::duration_cast<std::chrono::minutes> (ms).count() << endl;
+        // write to file
+        ofstream file("Result.json");
+        file << resultString << "\n";
+        file.close();
+    }
 
+    catch (...)
+    {
+        cout << "Inccorect enter\n\n";
+    }
 
     //отключает отправку и получение сообщений сокетом
     iResult = shutdown(connectSocket, SD_BOTH);
