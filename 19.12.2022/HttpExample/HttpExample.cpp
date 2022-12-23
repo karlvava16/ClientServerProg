@@ -123,18 +123,21 @@ int main()
     } while (respLength == BUFFERSIZE);
 
 
-    response = &response.c_str()[response.find("{")]; // left only json info
+    
 
 
+    
     try
     {
+        response = &response.c_str()[response.find("{")]; // left only json info
+
         Json::Reader reader; // reader that parse json file
 
         Json::Value completeJsonData; // class that contains json info
 
         reader.parse(response, completeJsonData); // parsing
 
-        string resultString = ""; // Result string
+        string resultString(""); // Result string
 
         //CITY ID
         resultString += "City ID: ";
@@ -169,14 +172,15 @@ int main()
         resultString += "\n";
 
         // write to file
-        ofstream file("Result.json");
+        ofstream file("Result.txt");
         file << resultString << "\n";
         file.close();
-    }
 
-    catch (...)
+    }
+    catch (Json::String str_out)
     {
-        cout << "Inccorect enter\n\n";
+        cout << str_out.c_str();
+        //cout << "Inccorect enter\n\n";
     }
 
     //отключает отправку и получение сообщений сокетом
