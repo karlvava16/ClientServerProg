@@ -9,16 +9,19 @@
 #include <iomanip>
 #include "json\json.h"
 
+
+
 using namespace std;
 
 int main()
 {
-    setlocale(0, "ru");
+    //setlocale(0, "ru");
 
     //Enter city
     string city;
     cout << "Enter city: ";
     cin >> city;
+    getline(cin, city);
 
 
     //1. инициализация "Ws2_32.dll" для текущего процесса
@@ -122,11 +125,8 @@ int main()
 
     } while (respLength == BUFFERSIZE);
 
+    cout << endl;
 
-    
-
-
-    
     try
     {
         response = &response.c_str()[response.find("{")]; // left only json info
@@ -136,12 +136,11 @@ int main()
         Json::Value completeJsonData; // class that contains json info
 
         reader.parse(response, completeJsonData); // parsing
-
         string resultString(""); // Result string
 
         //CITY ID
         resultString += "City ID: ";
-        resultString += completeJsonData["id"].asCString();
+        resultString += to_string(completeJsonData["id"].asInt());
         resultString += "\n";
         //CITY
         resultString += "City: ";
@@ -172,15 +171,16 @@ int main()
         resultString += "\n";
 
         // write to file
-        ofstream file("Result.txt");
+        ofstream file("Result.txt", ios::app);
+        cout << resultString << endl;
         file << resultString << "\n";
         file.close();
 
     }
-    catch (Json::String str_out)
+    catch (...)
     {
-        cout << str_out.c_str();
-        //cout << "Inccorect enter\n\n";
+        //cout << str_out.c_str();
+        cout << "Inccorect enter\n\n";
     }
 
     //отключает отправку и получение сообщений сокетом
