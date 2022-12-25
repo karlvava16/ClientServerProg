@@ -1,4 +1,4 @@
-ï»¿#pragma comment (lib, "Ws2_32.lib")
+#pragma comment (lib, "Ws2_32.lib")
 #include <Winsock2.h>
 #include <ws2tcpip.h>
 
@@ -15,15 +15,9 @@ using namespace std;
 
 int main()
 {
-    //setlocale(0, "ru");
-
-    //Enter city
-    string city;
-    cout << "Enter city: ";
-    getline(cin, city);
 
 
-    //1. Ð¸Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ "Ws2_32.dll" Ð´Ð»Ñ Ñ‚ÐµÐºÑƒÑ‰ÐµÐ³Ð¾ Ð¿Ñ€Ð¾Ñ†ÐµÑÑÐ°
+    //1. èíèöèàëèçàöèÿ "Ws2_32.dll" äëÿ òåêóùåãî ïðîöåññà
     WSADATA wsaData;
     WORD wVersionRequested = MAKEWORD(2, 2);
 
@@ -34,9 +28,9 @@ int main()
         return 1;
     }
 
-    //Ð¸Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ ÑÑ‚Ñ€ÑƒÐºÑ‚ÑƒÑ€Ñ‹, Ð´Ð»Ñ ÑƒÐºÐ°Ð·Ð°Ð½Ð¸Ñ ip Ð°Ð´Ñ€ÐµÑÐ° Ð¸ Ð¿Ð¾Ñ€Ñ‚Ð° ÑÐµÑ€Ð²ÐµÑ€Ð° Ñ ÐºÐ¾Ñ‚Ð¾Ñ€Ñ‹Ð¼ Ð¼Ñ‹ Ñ…Ð¾Ñ‚Ð¸Ð¼ ÑÐ¾ÐµÐ´Ð¸Ð½Ð¸Ñ‚ÑŒÑÑ
+    //èíèöèàëèçàöèÿ ñòðóêòóðû, äëÿ óêàçàíèÿ ip àäðåñà è ïîðòà ñåðâåðà ñ êîòîðûì ìû õîòèì ñîåäèíèòüñÿ
 
-    char hostname[255] = "api.openweathermap.org";
+    char hostname[255] = "api.privatbank.ua";
 
     addrinfo* result = NULL;
 
@@ -56,10 +50,10 @@ int main()
     SOCKET connectSocket = INVALID_SOCKET;
     addrinfo* ptr = NULL;
 
-    //ÐŸÑ€Ð¾Ð±ÑƒÐµÐ¼ Ð¿Ñ€Ð¸ÑÐ¾ÐµÐ´Ð¸Ð½Ð¸Ñ‚ÑŒÑÑ Ðº Ð¿Ð¾Ð»ÑƒÑ‡ÐµÐ½Ð½Ð¾Ð¼Ñƒ Ð°Ð´Ñ€ÐµÑÑƒ
+    //Ïðîáóåì ïðèñîåäèíèòüñÿ ê ïîëó÷åííîìó àäðåñó
     for (ptr = result; ptr != NULL; ptr = ptr->ai_next) {
 
-        //2. ÑÐ¾Ð·Ð´Ð°Ð½Ð¸Ðµ ÐºÐ»Ð¸ÐµÐ½Ñ‚ÑÐºÐ¾Ð³Ð¾ ÑÐ¾ÐºÐµÑ‚Ð°
+        //2. ñîçäàíèå êëèåíòñêîãî ñîêåòà
         connectSocket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
         if (connectSocket == INVALID_SOCKET) {
             printf("socket failed with error: %ld\n", WSAGetLastError());
@@ -67,7 +61,7 @@ int main()
             return 1;
         }
 
-        //3. Ð¡Ð¾ÐµÐ´Ð¸Ð½ÑÐµÐ¼ÑÑ Ñ ÑÐµÑ€Ð²ÐµÑ€Ð¾Ð¼
+        //3. Ñîåäèíÿåìñÿ ñ ñåðâåðîì
         iResult = connect(connectSocket, ptr->ai_addr, (int)ptr->ai_addrlen);
         if (iResult == SOCKET_ERROR) {
             closesocket(connectSocket);
@@ -79,9 +73,9 @@ int main()
 
     //4. HTTP Request
 
-    
 
-    string uri = "/data/2.5/weather?q=" + city + "&appid=75f6e64d49db78658d09cb5ab201e483&mode=JSON";
+
+    string uri = "/p24api/pubinfo?json&exchange&coursid=5";
 
     string request = "GET " + uri + " HTTP/1.1\n";
     request += "Host: " + string(hostname) + "\n";
@@ -92,7 +86,7 @@ int main()
 
     cout << uri << endl;
 
-    //Ð¾Ñ‚Ð¿Ñ€Ð°Ð²ÐºÐ° ÑÐ¾Ð¾Ð±Ñ‰ÐµÐ½Ð¸Ñ
+    //îòïðàâêà ñîîáùåíèÿ
     if (send(connectSocket, request.c_str(), request.length(), 0) == SOCKET_ERROR) {
         cout << "send failed: " << WSAGetLastError() << endl;
         closesocket(connectSocket);
@@ -182,7 +176,7 @@ int main()
         cout << "Inccorect enter\n\n";
     }
 
-    //Ð¾Ñ‚ÐºÐ»ÑŽÑ‡Ð°ÐµÑ‚ Ð¾Ñ‚Ð¿Ñ€Ð°Ð²ÐºÑƒ Ð¸ Ð¿Ð¾Ð»ÑƒÑ‡ÐµÐ½Ð¸Ðµ ÑÐ¾Ð¾Ð±Ñ‰ÐµÐ½Ð¸Ð¹ ÑÐ¾ÐºÐµÑ‚Ð¾Ð¼
+    //îòêëþ÷àåò îòïðàâêó è ïîëó÷åíèå ñîîáùåíèé ñîêåòîì
     iResult = shutdown(connectSocket, SD_BOTH);
     if (iResult == SOCKET_ERROR) {
         cout << "shutdown failed: " << WSAGetLastError() << endl;
